@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model University {
+  id         String   @id @default(cuid())
+  name       String   @unique
+  websiteUrl String
+  courses    Course[]
+}
+
+model Course {
+  id              String         @id @default(cuid())
+  slug            String         @unique
+  universityId    String
+  name            String
+  faculty         String
+  description     String
+  officialUrl     String
+  tags            String
+  majors          String
+  doubleDegree    String?
+  typicalRoles    String
+  aiRiskNote      String
+  aiRiskSources   String
+  prerequisites   Prerequisite[]
+  igps            IGP[]
+  outcomes        Outcome[]
+  intakes         Intake[]
+  university      University     @relation(fields: [universityId], references: [id])
+}
+
+model Prerequisite {
+  id              String @id @default(cuid())
+  courseId        String
+  requirementText String
+  sourceUrls      String
+  specialNotes    String?
+  course          Course @relation(fields: [courseId], references: [id])
+}
+
+model IGP {
+  id         String @id @default(cuid())
+  courseId   String
+  intakeYear Int
+  igp10Text  String
+  igp90Text  String
+  igp10Rp    Float
+  igp90Rp    Float
+  sourceUrls String
+  course     Course @relation(fields: [courseId], references: [id])
+}
+
+model Outcome {
+  id                     String @id @default(cuid())
+  courseId               String
+  year                   Int
+  startingSalaryMedian   Float?
+  startingSalaryMean     Float?
+  employmentRateOverall  Float?
+  employmentRateFTPerm   Float?
+  sourceUrls             String
+  course                 Course @relation(fields: [courseId], references: [id])
+}
+
+model Intake {
+  id         String @id @default(cuid())
+  courseId   String
+  year       Int
+  intakeSize Int?
+  sourceUrls String
+  course     Course @relation(fields: [courseId], references: [id])
+}
+
+model AdminImportLog {
+  id         String   @id @default(cuid())
+  importedAt DateTime @default(now())
+  fileName   String
+  statsJson  String
+}
